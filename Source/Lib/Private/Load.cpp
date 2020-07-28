@@ -58,7 +58,9 @@ void LoadList3f(PyObject* pyList, std::vector<Vector3f>& nativeVector)
 		}
 	}
 }
-
+/// \brief Copy a python dict which has strings as key and unsigned integers as values to an std::map
+///	\param		pyDict		The dictionary to copy
+///	\param[out]	nativeMap	The map to copy the data into
 void LoadDictStrInt(PyObject* pyDict, std::map<std::string, unsigned int>& nativeMap)
 {
 	if (PyDict_Check(pyDict))
@@ -82,6 +84,52 @@ void LoadDictStrInt(PyObject* pyDict, std::map<std::string, unsigned int>& nativ
 				nValue = PyLong_AsUnsignedLong(value);
 			}
 			nativeMap[nKey] = nValue;
+		}
+	}
+}
+///	\brief Copy a python list of lists, in which the underlying lists have an arbitrary size of float data
+///	\param	pyList				The python list to copy
+///	\param[out]	nativeVector	The vector to copy the data into
+void LoadListOfListsf(PyObject* pyList, std::vector<std::vector<float>>& nativeVector)
+{
+	if (PyList_Check(pyList))
+	{
+		nativeVector = std::vector<std::vector<float>>(size_t(PyList_Size(pyList)));
+		for (int pos = 0; pos < nativeVector.size(); ++pos)
+		{
+			PyObject* list = PyList_GetItem(pyList, pos);
+			if (PyList_Check(list))
+			{
+				nativeVector[pos] = std::vector<float>(size_t(PyList_Size(list)));
+				for (int i = 0; i < nativeVector[pos].size(); ++i)
+				{
+					PyObject* val = PyList_GetItem(list, i);
+					nativeVector[pos][i] = PyFloat_AsDouble(val);
+				}
+			}
+		}
+	}
+}
+///	\brief Copy a python list of lists, in which the underlying lists have an arbitrary size of unsigned int data
+///	\param	pyList				The python list to copy
+///	\param[out]	nativeVector	The vector to copy the data into
+void LoadListOfListsui(PyObject* pyList, std::vector<std::vector<unsigned int>>& nativeVector)
+{
+	if (PyList_Check(pyList))
+	{
+		nativeVector = std::vector<std::vector<unsigned int>>(size_t(PyList_Size(pyList)));
+		for (int pos = 0; pos < nativeVector.size(); ++pos)
+		{
+			PyObject* list = PyList_GetItem(pyList, pos);
+			if (PyList_Check(list))
+			{
+				nativeVector[pos] = std::vector<unsigned int>(size_t(PyList_Size(list)));
+				for (int i = 0; i < nativeVector[pos].size(); ++i)
+				{
+					PyObject* val = PyList_GetItem(list, i);
+					nativeVector[pos][i] = PyFloat_AsDouble(val);
+				}
+			}
 		}
 	}
 }
@@ -149,6 +197,38 @@ Model LoadSMPL(const std::string& filepath)
 			if (nKey == "JointNames")
 			{
 				detail::LoadDictStrInt(value, model.JointNames);
+			}
+			if (nKey == "PartNames")
+			{
+				detail::LoadDictStrInt(value, model.PartNames);
+			}
+			if (nKey == "SkinningWeights")
+			{
+				detail::LoadListOfListsf(value, model.SkinningWeights);
+			}
+			if (nKey == "JRegressor")
+			{
+				detail::LoadListOfListsf(value, model.JRegressor);
+			}
+			if (nKey == "HandsComponentsL")
+			{
+				detail::LoadListOfListsf(value, model.HandsComponentsL);
+			}
+			if (nKey == "HandsComponentsR")
+			{
+				detail::LoadListOfListsf(value, model.HandsComponentsR);
+			}
+			if (nKey == "HandsCoefficientsL")
+			{
+				detail::LoadListOfListsf(value, model.HandCoefficientsL);
+			}
+			if (nKey == "HandsCoefficientsR")
+			{
+				detail::LoadListOfListsf(value, model.HandCoefficientsR);
+			}
+			if (nKey == "DynamicLMKFacesIdx")
+			{
+				detail::LoadListOfListsui(value, model.DynamicLMKFacesIdx);
 			}
 		}
 	}

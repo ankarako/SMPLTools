@@ -9,9 +9,19 @@ def LoadPickle(filepath):
 	result = {
 		"Faces": p['f'].tolist(),
 		"Vertices": p['v_template'].tolist(),
-		"JointNames": p['joint2num'].tolist()
+		"JointNames": p['joint2num'].tolist(),
+		"PartNames": p['part2num'].tolist(),
+		"SkinningWeights" : p['weights'].tolist(),
+		"ShapeDirections" : p['shapedirs'].tolist(),
+		"JRegressor": p['J_regressor'].tolist(),
+		"HandsComponentsL": p['hands_componentsl'].tolist(),
+		"HandsComponentsR": p['hands_componentsr'].tolist(),
+		"HandsCoefficientsL": p['hands_coeffsl'].tolist(),
+		"HandsCoefficientsR": p['hands_coeffsr'].tolist(),
+		"DynamicLMKFacesIdx": p['dynamic_lmk_faces_idx'].tolist(),
+
 	}
-	print(result)
+	# print(result["JRegressor"])
 	return result
 
 ###############
