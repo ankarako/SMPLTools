@@ -2,6 +2,6 @@
 
 int main(int argc, char* argv[])
 {
-	smpl::Model model = smpl::LoadSMPL("D:\\_dev\\_PhD\\Resources\\SMPL\\SMPL_python_v.1.0.0\\smpl\\models\\basicModel_f_lbs_10_207_0_v1.0.0.pkl");
+	smpl::Model model = smpl::LoadSMPL("E:\\_dev\\_PhD\\SMPL\\SMPLX\\models_smplx_v1_0\\models\\smplx\\SMPLX_FEMALE.pkl");
 	return 0;
 }

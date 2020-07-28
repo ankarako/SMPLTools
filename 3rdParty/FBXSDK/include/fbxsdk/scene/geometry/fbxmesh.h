@@ -442,8 +442,9 @@ public:
 
 		/** Sets element in edge array to specific value.
 		* \param pEdgeIndex The edge index
-		* \param pValue The edge data */
-		inline void SetMeshEdge(int pEdgeIndex, int pValue)
+		* \param pValue The edge data
+		* \return false if pValue represent an invalid value. */
+		inline bool SetMeshEdge(int pEdgeIndex, int pValue)
 		{ 
 			if (pEdgeIndex >= 0 && pEdgeIndex < mEdgeArray.GetCount())
 			{
@@ -452,10 +453,12 @@ public:
 				if (pValue < 0 || pValue >= mPolygonVertices.GetCount())
 				{
 					pValue = 0;
+					return false;
 				}
 
 				mEdgeArray[pEdgeIndex] = pValue;
 			}
+			return true;
 		}
 
 		/** Add an edge with the given start/end points. Note that the inserted edge
