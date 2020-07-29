@@ -30,6 +30,7 @@ struct SMPLModel
 	std::vector<double>								HandsMeanR;
 	std::vector<unsigned int>						LMKFacesIdx;
 	std::vector<Vector3d>							LMKBaryCoords;
+	std::vector<std::vector<unsigned int>>			KinematicTree;
 };	///	!struct Model
 }	///	!namespace smpl
 #endif	///	!__LIB_PUBLIC_MODEL_HPP__

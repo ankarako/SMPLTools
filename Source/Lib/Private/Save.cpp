@@ -32,20 +32,28 @@ void SaveFBX(const std::string& filepath, const SMPLModel& model)
 	FbxMesh* lMesh = FbxMesh::Create(lScene, "SMPLMesh");
 	lMeshNode->SetNodeAttribute(lMesh);
 	lRootNode->AddChild(lMeshNode);
-	std::vector<FbxVector4> meshVertices(model.Vertices.size());
-	/// Convert SMPL's vertices to fbx vertices
-	for (int pos = 0; pos < model.Vertices.size(); ++pos)
-	{
-		meshVertices[pos] 
-			= FbxVector4(model.Vertices[pos].x, model.Vertices[pos].y, model.Vertices[pos].z);
-	}
-	/// Convert faces to control points
-	lMesh->InitControlPoints(model.Faces.size());
+	/// populate the mesh's control points (i.e. the mesh's vertices)
+	lMesh->InitControlPoints(model.Vertices.size());
 	FbxVector4* lControlPoints = lMesh->GetControlPoints();
+	unsigned int vCounter = 0;
+	for (int vpos = 0; vpos < model.Vertices.size(); ++vpos)
+	{
+		lControlPoints[vpos] = FbxVector4(
+			model.Vertices[vpos].x, 
+			model.Vertices[vpos].y, 
+			model.Vertices[vpos].z);
+	}
+	/// populate the mesh's faces
 	for (int pos = 0; pos < model.Faces.size(); ++pos)
 	{
-		lControlPoints[pos] = meshVertices[model.Faces[pos].x];
+		lMesh->BeginPolygon();
+		lMesh->AddPolygon(model.Faces[pos].x);
+		lMesh->AddPolygon(model.Faces[pos].y);
+		lMesh->AddPolygon(model.Faces[pos].z);
+		lMesh->EndPolygon();
 	}
+	/// add the skeleton?
+
 	/// Export the scene
 	lExporter->Export(lScene);
 	/// cleanup

@@ -66,5 +66,8 @@ if(BUILD_TESTS)
 	cmake_policy(SET CMP0079 NEW)
 	add_subdirectory("Test")
 	target_link_libraries(TestLoad PRIVATE SMPLToolsLib)
+	target_link_libraries(TestSaveFBX PRIVATE SMPLToolsLib)
+	target_link_libraries(PrintProperties PRIVATE SMPLToolsLib)
+	target_link_libraries(TestAnimation PRIVATE SMPLToolsLib)
 endif(BUILD_TESTS)
 

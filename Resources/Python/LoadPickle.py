@@ -1,15 +1,14 @@
 import _pickle as pickle
-
+# \brief load a pickle SMPLX file
+# \param	filepath	The path to the file to load
+# \return	A dictionary with the smplx model's properties
 def LoadPickle(filepath):
-	print("Loading pickle file: {}".format(filepath))
 	fd = open(filepath, 'rb')
 	p = pickle.load(fd, fix_imports=True, encoding='latin1')
 	fd.close()
-
 	# convert dynamic_lmk_bary_coords arrays to lists
 	for i in range(len(p['dynamic_lmk_bary_coords'])):
 		p['dynamic_lmk_bary_coords'][i] = p['dynamic_lmk_bary_coords'][i].tolist()
-
 	# convert to "primitive" python types
 	result = {
 		"Faces": p['f'].tolist(),
@@ -30,6 +29,7 @@ def LoadPickle(filepath):
 		"HandsMeanR": p['hands_meanr'].tolist(),
 		"LMKFacesIdx": p['lmk_faces_idx'].tolist(),
 		"LMKBaryCoords": p['lmk_bary_coords'].tolist(),
+		"KinematicTree": p['kintree_table'].tolist(),
 	}
 	return result
 

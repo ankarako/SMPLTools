@@ -13,3 +13,21 @@ add_executable(
 	"TestLoad.cpp"
 )
 set_target_properties(TestLoad PROPERTIES FOLDER "Tests")
+
+add_executable(
+	TestSaveFBX
+	"TestSaveFBX.cpp"
+)
+set_target_properties(TestSaveFBX PROPERTIES FOLDER "Tests")
+
+add_executable(
+	PrintProperties
+	"PrintSMPLProperties.cpp"
+)
+set_target_properties(PrintProperties PROPERTIES FOLDER "Tests")
+
+add_executable(
+	TestAnimation
+	"TestAnimation.cpp"
+)
+set_target_properties(TestAnimation PROPERTIES FOLDER "Tests")

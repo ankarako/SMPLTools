@@ -131,6 +131,10 @@ SMPLModel LoadSMPLX(const std::string& filepath)
 			{
 				util::PyList1Vec3d::Load(value, model.LMKBaryCoords);
 			}
+			if (nKey == "KinematicTree")
+			{
+				util::PyList2ui::Load(value, model.KinematicTree);
+			}
 		}
 	}
 	return model;
