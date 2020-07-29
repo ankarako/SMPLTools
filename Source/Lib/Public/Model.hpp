@@ -14,8 +14,8 @@ struct SMPLModel
 	std::vector<Vector3f> 							Vertices;
 	std::vector<Vector3ui> 							Faces;
 	std::vector<Vector3f>							JointPositions;
-	std::map<std::string, unsigned int>				JointNames;
-	std::map<std::string, unsigned int>				PartNames;
+	std::map<unsigned int, std::string>				JointNames;
+	std::map<unsigned int, std::string>				PartNames;
 	std::vector<std::vector<double>>				SkinningWeights;
 	std::vector<std::vector<double>>				JRegressor;
 	std::vector<std::vector<std::vector<double>>>	ShapeDirections;
@@ -30,7 +30,7 @@ struct SMPLModel
 	std::vector<double>								HandsMeanR;
 	std::vector<unsigned int>						LMKFacesIdx;
 	std::vector<Vector3d>							LMKBaryCoords;
-	std::vector<std::vector<unsigned int>>			KinematicTree;
+	std::map<unsigned int, unsigned int>			KinematicTree;
 };	///	!struct Model
 }	///	!namespace smpl
 #endif	///	!__LIB_PUBLIC_MODEL_HPP__

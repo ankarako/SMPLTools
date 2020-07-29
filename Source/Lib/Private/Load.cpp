@@ -69,11 +69,21 @@ SMPLModel LoadSMPLX(const std::string& filepath)
 			/// Get Joint Positions
 			if (nKey == "JointNames")
 			{
-				util::PyDictStrui::Load(value, model.JointNames);
+				std::map<std::string, unsigned int> names;
+				util::PyDictStrui::Load(value, names);
+				for (auto it = names.begin(); it != names.end(); ++it)
+				{
+					model.JointNames[it->second] = it->first;
+				}
 			}
 			if (nKey == "PartNames")
 			{
-				util::PyDictStrui::Load(value, model.PartNames);
+				std::map<std::string, unsigned int> names;
+				util::PyDictStrui::Load(value, names);
+				for (auto it = names.begin(); it != names.end(); ++it)
+				{
+					model.PartNames[it->second] = it->first;
+				}
 			}
 			if (nKey == "SkinningWeights")
 			{
@@ -133,7 +143,12 @@ SMPLModel LoadSMPLX(const std::string& filepath)
 			}
 			if (nKey == "KinematicTree")
 			{
-				util::PyList2ui::Load(value, model.KinematicTree);
+				std::vector<std::vector<unsigned int>> kintree;
+				util::PyList2ui::Load(value, kintree);
+				for (int pos = 0; pos < kintree[1].size(); ++pos)
+				{
+					model.KinematicTree[pos] = kintree[0][pos];
+				}
 			}
 		}
 	}
