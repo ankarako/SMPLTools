@@ -1,8 +1,11 @@
 import _pickle as pickle
+import os
 # \brief load a pickle SMPLX file
 # \param	filepath	The path to the file to load
 # \return	A dictionary with the smplx model's properties
 def LoadPickle(filepath):
+	if not os.path.exists(filepath):
+		raise Exception("Filepath <{}> does not exists.".format(filepath))
 	fd = open(filepath, 'rb')
 	p = pickle.load(fd, fix_imports=True, encoding='latin1')
 	fd.close()

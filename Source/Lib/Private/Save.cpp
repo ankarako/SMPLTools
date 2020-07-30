@@ -2,6 +2,7 @@
 #include <Animation.hpp>
 #include <fbxsdk.h>
 #include <fbxsdk/fileio/fbxiosettings.h>
+#include <algorithm>
 
 namespace smpl {
 namespace detail {
@@ -137,7 +138,7 @@ void MapGeometry(const SMPLModel& model, FbxMesh* mesh)
 /// \brief Set the model's skeleton in the fbx format
 ///	\param	model		The SMPL model
 ///	\param	meshNode	The fbx mesh node
-void MapSkeleton(const SMPLModel& model, FbxScene* scene,FbxNode* meshNode)
+void MapSkeleton(const SMPLModel& model, FbxScene* scene, FbxNode* meshNode, FbxMesh* mesh)
 {
 	/// Get the position of each joint
 	std::vector<Vector3d> jointPositions = smpl::ComputeJointPositions(model);
@@ -145,6 +146,7 @@ void MapSkeleton(const SMPLModel& model, FbxScene* scene,FbxNode* meshNode)
 	///	and then connect them to create the skeleton tree
 	std::vector<FbxSkeleton*> fbxJoints;
 	std::vector<FbxNode*> fbxNodes;
+	std::vector<FbxCluster*> fbxClusters;
 	for (auto it = model.JointNames.begin(); it != model.JointNames.end(); ++it)
 	{
 		/// create the skeleton (bone) and the scene node
@@ -153,15 +155,24 @@ void MapSkeleton(const SMPLModel& model, FbxScene* scene,FbxNode* meshNode)
 		/// set the skeletong type
 		skelJoint->SetSkeletonType(detail::k_SkeletonTypes.at(it->first));
 		skelNode->SetNodeAttribute(skelJoint);
-		/// set the position of the joint
-		FbxVector4 skelPos(jointPositions[it->first].x, jointPositions[it->first].y, jointPositions[it->first].z);
-		FbxAMatrix transform;
-		transform.SetT(skelPos);
-		SetGlobalDefaultPosition(skelNode, transform);
 		/// the fbx scene tree node
 		fbxJoints.emplace_back(skelJoint);
 		fbxNodes.emplace_back(skelNode);
 		meshNode->AddChild(skelNode);
+
+		std::string name = it->second + "Cluster";
+		FbxCluster* cluster = FbxCluster::Create(scene, name.c_str());
+		cluster->SetLink(skelNode);
+		cluster->SetLinkMode(FbxCluster::eTotalOne);
+		fbxClusters.emplace_back(cluster);
+	}
+	///////////////////////
+	for (int cpos = 0; cpos < fbxClusters.size(); ++cpos)
+	{
+		for (int vpos = 0; vpos < model.SkinningWeights.size(); ++vpos)
+		{
+			fbxClusters[cpos]->AddControlPointIndex(vpos, model.SkinningWeights[vpos][cpos]);
+		}
 	}
 	for (auto it = model.KinematicTree.begin(); it != model.KinematicTree.end(); ++it)
 	{
@@ -170,6 +181,26 @@ void MapSkeleton(const SMPLModel& model, FbxScene* scene,FbxNode* meshNode)
 			fbxNodes[it->second]->AddChild(fbxNodes[it->first]);
 		}
 	}
+	int jpos = 0;
+	for (auto& node : fbxNodes)
+	{
+		FbxVector4 skelPos(jointPositions[jpos].x, jointPositions[jpos].y, jointPositions[jpos].z);
+		FbxAMatrix transform;
+		transform.SetT(skelPos);
+		transform.SetR(FbxVector4(0.0, 0.0, 0.0));
+		SetGlobalDefaultPosition(node, transform);
+		jpos++;
+	}
+	FbxSkin* skin = FbxSkin::Create(scene, "Skin");
+	mesh->AddDeformer(skin);
+	for (int cpos = 0; cpos < fbxClusters.size(); ++cpos)
+	{
+		FbxAMatrix lMatrix;
+		lMatrix.SetIdentity();
+		fbxClusters[cpos]->SetTransformMatrix(lMatrix);
+		skin->AddCluster(fbxClusters[cpos]);
+	}
+	
 }
 }	///	!namespace detail
 ///	\brief Save an SMPLModel as an FBX file
@@ -201,10 +232,10 @@ void SaveFBX(const std::string& filepath, const SMPLModel& model)
 	FbxMesh* lMesh = FbxMesh::Create(lScene, "SMPLMeshGeometry");
 	lMeshNode->SetNodeAttribute(lMesh);
 	lRootNode->AddChild(lMeshNode);
-	/// Populate the mesh's geometry
+	/// map the mesh's geometry
 	detail::MapGeometry(model, lMesh);
-	/// add the skeleton?
-	detail::MapSkeleton(model, lScene, lMeshNode);
+	/// map the skeleton
+	detail::MapSkeleton(model, lScene, lMeshNode, lMesh);
 	/// Export the scene
 	if (!lExporter->Export(lScene))
 	{
