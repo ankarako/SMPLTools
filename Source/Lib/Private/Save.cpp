@@ -147,11 +147,14 @@ void MapSkeleton(const SMPLModel& model, FbxScene* scene, FbxNode* meshNode, Fbx
 	std::vector<FbxSkeleton*> fbxJoints;
 	std::vector<FbxNode*> fbxNodes;
 	std::vector<FbxCluster*> fbxClusters;
+	FbxPose* bindPose = FbxPose::Create(scene, "BindPose");
+	FbxAMatrix meshMatrix = meshNode->EvaluateGlobalTransform();
 	for (auto it = model.JointNames.begin(); it != model.JointNames.end(); ++it)
 	{
 		/// create the skeleton (bone) and the scene node
 		FbxSkeleton* skelJoint = FbxSkeleton::Create(scene, it->second.c_str());
 		FbxNode* skelNode = FbxNode::Create(scene, it->second.c_str());
+		FbxAMatrix boneMatrix = skelNode->EvaluateGlobalTransform();
 		/// set the skeletong type
 		skelJoint->SetSkeletonType(detail::k_SkeletonTypes.at(it->first));
 		skelNode->SetNodeAttribute(skelJoint);
@@ -163,8 +166,11 @@ void MapSkeleton(const SMPLModel& model, FbxScene* scene, FbxNode* meshNode, Fbx
 		std::string name = it->second + "Cluster";
 		FbxCluster* cluster = FbxCluster::Create(scene, name.c_str());
 		cluster->SetLink(skelNode);
-		cluster->SetLinkMode(FbxCluster::eTotalOne);
+		cluster->SetLinkMode(FbxCluster::ELinkMode::eNormalize);
+		cluster->SetTransformMatrix(meshMatrix);
+		cluster->SetTransformLinkMatrix(boneMatrix);
 		fbxClusters.emplace_back(cluster);
+		bindPose->Add(skelNode, skelNode->EvaluateGlobalTransform());
 	}
 	///////////////////////
 	for (int cpos = 0; cpos < fbxClusters.size(); ++cpos)
@@ -200,7 +206,8 @@ void MapSkeleton(const SMPLModel& model, FbxScene* scene, FbxNode* meshNode, Fbx
 		fbxClusters[cpos]->SetTransformMatrix(lMatrix);
 		skin->AddCluster(fbxClusters[cpos]);
 	}
-	
+	scene->AddPose(bindPose);
+	//
 }
 }	///	!namespace detail
 ///	\brief Save an SMPLModel as an FBX file
